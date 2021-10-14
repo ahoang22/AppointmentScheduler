@@ -1,13 +1,14 @@
 const express = require("express");
 const { WebhookClient } = require("dialogflow-fulfillment");
 const {google} = require('googleapis');
-const serviceAccount = require("./api-keys/google-calendar-service-account.json");
-const calendarId = "<Add your calendar ID here>";
+const axios = require('axios')
+const config = require("./config");
 const app = express();
 
 app.post("/dialogflow", express.json(), (request, response) => {
     const agent = new WebhookClient({ request, response });
     console.log("Parameters", agent.parameters);
+    submitAppointment(agent.parameters);
     const appointment_type = agent.parameters.AppointmentType;
     function makeAppointment (agent) {
       // Calculate appointment start and end datetimes (end = +1hr from start)
@@ -31,10 +32,28 @@ app.post("/dialogflow", express.json(), (request, response) => {
     agent.handleRequest(intentMap);
 });
 
+function submitAppointment(body) {
+  axios
+    .post(
+      config.api.myCority.url,
+      body,
+      {
+        headers: { Authorization: `Bearer ${config.api.myCority.bearerToken}` },
+      }
+    )
+    .then((res) => {
+      console.log(`statusCode: ${res.status}`);
+      console.log(res);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
+
 // Set up Google Calendar Service account credentials
 const serviceAccountAuth = new google.auth.JWT({
- email: serviceAccount.client_email,
- key: serviceAccount.private_key,
+ email: config.api.googleCalendar.serviceAccount.client_email,
+ key: config.api.googleCalendar.serviceAccount.private_key,
  scopes: 'https://www.googleapis.com/auth/calendar'
 });
 
@@ -49,7 +68,7 @@ function createCalendarEvent (dateTimeStart, dateTimeEnd, appointment_type) {
  return new Promise((resolve, reject) => {
    calendar.events.list({
      auth: serviceAccountAuth, // List events for time period
-     calendarId: calendarId,
+     calendarId: config.api.googleCalendar.calendarId,
      timeMin: dateTimeStart.toISOString(),
      timeMax: dateTimeEnd.toISOString()
    }, (err, calendarResponse) => {
@@ -59,7 +78,7 @@ function createCalendarEvent (dateTimeStart, dateTimeEnd, appointment_type) {
      } else {
        // Create event for the requested time period
        calendar.events.insert({ auth: serviceAccountAuth,
-         calendarId: calendarId,
+         calendarId: config.api.googleCalendar.calendarId,
          resource: {summary: appointment_type +' Appointment', description: appointment_type,
            start: {dateTime: dateTimeStart},
            end: {dateTime: dateTimeEnd}}
@@ -72,7 +91,7 @@ function createCalendarEvent (dateTimeStart, dateTimeEnd, appointment_type) {
  });
 }
 
-app.listen(process.env.PORT || 8080);
+app.listen(config.web.port);
 
 
 
