@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "actions-on-google": "^2.14.0",
+    "axios": "^0.18.1",
     "dialogflow-fulfillment": "^0.6.1",
     "express": "^4.17.1"
   },
@@ -13,5 +14,5 @@
     "ngrok": "^3.1.0",
     "nodemon": "^1.18.9",
     "standard": "^12.0.1"
-}
+  }
 }

@@ -1,6 +1,8 @@
 const express = require("express");
 const { WebhookClient } = require("dialogflow-fulfillment");
 const {google} = require('googleapis');
+const serviceAccount = require("./api-keys/google-calendar-service-account.json");
+const calendarId = "<Add your calendar ID here>";
 const app = express();
 
 app.post("/dialogflow", express.json(), (request, response) => {
@@ -28,10 +30,6 @@ app.post("/dialogflow", express.json(), (request, response) => {
     intentMap.set('Schedule Appointment', makeAppointment);
     agent.handleRequest(intentMap);
 });
-
-// Enter your calendar ID below and service account JSON below
-const calendarId = "<Add your calendar ID here>"
-const serviceAccount = {<Add your service account details here>}; // Starts with {"type": "service_account",...
 
 // Set up Google Calendar Service account credentials
 const serviceAccountAuth = new google.auth.JWT({
