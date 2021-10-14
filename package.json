@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "dev": "nodemon --inspect src/app.js",
+    "start": "node src/app.js",
+    "tunnel": "ngrok http 8080"
+  },
+  "dependencies": {
+    "actions-on-google": "^2.14.0",
+    "dialogflow-fulfillment": "^0.6.1",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "ngrok": "^3.1.0",
+    "nodemon": "^1.18.9",
+    "standard": "^12.0.1"
+}
+}
